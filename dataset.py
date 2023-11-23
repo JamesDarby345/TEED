@@ -7,6 +7,10 @@ import torch
 from torch.utils.data import Dataset
 import json
 
+biped_dir = '/Users/jamesdarby/Documents/McGill/COMP 551/Asg4/BIPEDv2/BIPED'
+biped_train_list = 'train_pair.lst'
+biped_test_list = 'test_pair.lst'
+
 DATASET_NAMES = [
     'BIPED',
     'BIPED-B2',
@@ -124,7 +128,7 @@ def dataset_info(dataset_name, is_linux=True):
                 'train_list': 'train_pair0.lst', # Base augmentation
                 # 'train_list': 'train_pairB3.lst', # another augmentation
                 # 'train_list': 'train_pairB5.lst', # Last augmentation
-                'data_dir': '/root/workspace/datasets/BIPED',  # mean_rgb
+                'data_dir': biped_dir, #'/root/workspace/datasets/BIPED',  # mean_rgb
                 'yita': 0.5,
                 'mean':BIPED_mean
             #
@@ -248,10 +252,10 @@ def dataset_info(dataset_name, is_linux=True):
                          'mean': [104.007, 116.669, 122.679, 137.86]},
             'BIPED': {'img_height': 720,  # 720
                       'img_width': 1280,  # 1280
-                      'test_list': 'test_pair.lst',
-                      'train_list': 'train_pair0.lst',
+                      'test_list': biped_test_list,#'test_pair.lst',
+                      'train_list': biped_train_list, #'train_pair.lst',
                       # 'train_list': 'train_rgb.lst',
-                      'data_dir': 'C:/dataset/BIPED',  # WIN: '../.../dataset/BIPED/edges'
+                      'data_dir': biped_dir,  # WIN: '../.../dataset/BIPED/edges'
                       'yita': 0.5,
                       'mean':BIPED_mean},
             'BIPED-B2': {'img_height': 720,  # 720

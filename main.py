@@ -22,7 +22,7 @@ from ted import TED # TEED architecture
 from utils.img_processing import (image_normalization, save_image_batch_to_disk,
                    visualize_result, count_parameters)
 
-is_testing =True # set False to train with TEED model
+is_testing = False # set False to train with TEED model
 IS_LINUX = True if platform.system()=="Linux" else False
 
 def train_one_epoch(epoch, dataloader, model, criterions, optimizer, device,
@@ -214,15 +214,17 @@ def parse_args(is_testing=True):
                         default=-1,     # UDED=15
                         help='Choose a dataset for testing: 0 - 15')
 
-    # ----------- test -------0--
+    # ----------- test ----------
     TEST_DATA = DATASET_NAMES[parser.parse_args().choose_test_data] # max 8
     test_inf = dataset_info(TEST_DATA, is_linux=IS_LINUX)
 
     # Training settings
-    # BIPED-B2=1, BIPDE-B3=2, just for evaluation, using LDC trained with 2 or 3 bloacks
+    # BIPED-B2=1, BIPED-B3=2, just for evaluation, using LDC trained with 2 or 3 blocks
     TRAIN_DATA = DATASET_NAMES[0] # BIPED=0, BRIND=6, MDBD=10, BIPBRI=13
+    print("Training dataset: ", TRAIN_DATA)
     train_inf = dataset_info(TRAIN_DATA, is_linux=IS_LINUX)
     train_dir = train_inf['data_dir']
+    print("train dir", train_dir)
 
     # Data parameters
     parser.add_argument('--input_dir',
@@ -378,12 +380,13 @@ def main(args, train_inf):
         print("Training details> ",training_notes)
 
     # Get computing device
-    device = torch.device('cpu' if torch.cuda.device_count() == 0
-                          else 'cuda')
+    device = torch.device("mps" if torch.backends.mps.is_built() \
+        else "gpu" if torch.cuda.is_available() else "cpu")
     # torch.cuda.set_device(args.use_gpu) # set a desired gpu
 
     print(f"Number of GPU's available: {torch.cuda.device_count()}")
     print(f"Pytorch version: {torch.__version__}")
+    print(f"Device: {device}")
     # print(f'GPU: {torch.cuda.get_device_name()}')
     print(f'Trainimage mean: {args.mean_train}')
     print(f'Test image mean: {args.mean_test}')
@@ -435,7 +438,7 @@ def main(args, train_inf):
         # Count parameters:
         num_param = count_parameters(model)
         print('-------------------------------------------------------')
-        print('TED parameters:')
+        print('TEED parameters:')
         print(num_param)
         print('-------------------------------------------------------')
         return
@@ -519,6 +522,6 @@ def main(args, train_inf):
 
 if __name__ == '__main__':
     # os.system(" ".join(command))
-    is_testing =True # True to use TEED for testing
+    is_testing =False # True to use TEED for testing
     args, train_info = parse_args(is_testing=is_testing)
     main(args, train_info)
