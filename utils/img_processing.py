@@ -261,8 +261,8 @@ def visualize_result(imgs_list, arg):
 
 if __name__ == '__main__':
 
-    img_base_dir='tmp_edge'
-    gt_base_dir='C:/Users/xavysp/dataset/BIPED/edges/edge_maps/test/rgbr'
+    img_base_dir='/Users/jamesdarby/Documents/McGill/COMP 551/Asg4/TEED/result/BIPED2UDED/fused'
+    gt_base_dir='/Users/jamesdarby/Documents/McGill/COMP 551/Asg4/UDED/gt'
     # gt_base_dir='C:/Users/xavysp/dataset/BRIND/test_edges'
     # gt_base_dir='C:/Users/xavysp/dataset/UDED/gt'
     vers = 'TEED model in BIPED'

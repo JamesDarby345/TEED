@@ -127,7 +127,7 @@ def validate_one_epoch(epoch, dataloader, model, device, output_dir, arg=None,te
 def test(checkpoint_path, dataloader, model, device, output_dir, args,resize_input=False):
     if not os.path.isfile(checkpoint_path):
         raise FileNotFoundError(
-            f"Checkpoint filte note found: {checkpoint_path}")
+            f"Checkpoint file not found: {checkpoint_path}")
     print(f"Restoring weights from: {checkpoint_path}")
     model.load_state_dict(torch.load(checkpoint_path,
                                      map_location=device))
@@ -211,7 +211,7 @@ def parse_args(is_testing=True):
     parser = argparse.ArgumentParser(description='TEED model')
     parser.add_argument('--choose_test_data',
                         type=int,
-                        default=-1,     # UDED=15
+                        default=15,     # UDED=15
                         help='Choose a dataset for testing: 0 - 15')
 
     # ----------- test ----------
@@ -323,7 +323,7 @@ def parse_args(is_testing=True):
                         type=int,
                         help='The number of workers for the dataloaders.')
     parser.add_argument('--tensorboard',type=bool,
-                        default=True,
+                        default=False,
                         help='Use Tensorboard for logging.'),
     parser.add_argument('--img_width',
                         type=int,
@@ -381,7 +381,7 @@ def main(args, train_inf):
 
     # Get computing device
     device = torch.device("mps" if torch.backends.mps.is_built() \
-        else "gpu" if torch.cuda.is_available() else "cpu")
+        else "cuda" if torch.cuda.is_available() else "cpu")
     # torch.cuda.set_device(args.use_gpu) # set a desired gpu
 
     print(f"Number of GPU's available: {torch.cuda.device_count()}")
@@ -522,6 +522,6 @@ def main(args, train_inf):
 
 if __name__ == '__main__':
     # os.system(" ".join(command))
-    is_testing =False # True to use TEED for testing
+    is_testing =True # True to use TEED for testing
     args, train_info = parse_args(is_testing=is_testing)
     main(args, train_info)

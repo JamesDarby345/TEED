@@ -11,6 +11,10 @@ biped_dir = '/Users/jamesdarby/Documents/McGill/COMP 551/Asg4/BIPEDv2/BIPED'
 biped_train_list = 'train_pair.lst'
 biped_test_list = 'test_pair.lst'
 
+uded_dir = '/Users/jamesdarby/Documents/McGill/COMP 551/Asg4/UDED'
+uded_train_pair = None#'train_pair.lst'
+uded_test_pair = 'test_pair.lst'
+
 DATASET_NAMES = [
     'BIPED',
     'BIPED-B2',
@@ -185,9 +189,9 @@ def dataset_info(dataset_name, is_linux=True):
             'UDED': {
                 'img_height': 512,  # 321
                 'img_width': 512,  # 481
-                'train_list': None,
-                'test_list': 'test_pair.lst',
-                'data_dir': 'C:/dataset/UDED',  # mean_rgb
+                'train_list': uded_train_pair,#None,
+                'test_list': uded_test_pair,#'test_pair.lst',
+                'data_dir': uded_dir,#'C:/dataset/UDED',  # mean_rgb
                 'yita': 0.5,
                 'mean':[104.007, 116.669, 122.679, 137.86] # [183.939,196.779,203.68,137.86] # [104.007, 116.669, 122.679, 137.86]
             },

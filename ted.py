@@ -283,6 +283,8 @@ if __name__ == '__main__':
 
     # device = "cuda" if torch.cuda.is_available() else "cpu"
     device = "cpu"
+    device = torch.device("mps" if torch.backends.mps.is_built() \
+        else "cuda" if torch.cuda.is_available() else "cpu")
     input = torch.rand(batch_size, 3, img_height, img_width).to(device)
     # target = torch.rand(batch_size, 1, img_height, img_width).to(device)
     print(f"input shape: {input.shape}")
