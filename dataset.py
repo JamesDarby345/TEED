@@ -15,6 +15,10 @@ uded_dir = '/Users/jamesdarby/Documents/McGill/COMP 551/Asg4/UDED'
 uded_train_pair = None#'train_pair.lst'
 uded_test_pair = 'test_pair.lst'
 
+sin_dir = '/Users/jamesdarby/Documents/McGill/COMP 551/Asg4/SiN/augmented_data'
+sin_train_pair = 'train_pair.lst'
+sin_test_pair = 'test_pair.lst'
+
 DATASET_NAMES = [
     'BIPED',
     'BIPED-B2',
@@ -32,6 +36,7 @@ DATASET_NAMES = [
     'NYUD', #13
     'BIPBRI',
     'UDED', # 15 just for testing
+    'SIN',
     'DMRIR',
     'CLASSIC'
 ]  # 8
@@ -135,7 +140,6 @@ def dataset_info(dataset_name, is_linux=True):
                 'data_dir': biped_dir, #'/root/workspace/datasets/BIPED',  # mean_rgb
                 'yita': 0.5,
                 'mean':BIPED_mean
-            #
             },
             'CLASSIC': {
                 'img_height': 512,#
@@ -194,6 +198,15 @@ def dataset_info(dataset_name, is_linux=True):
                 'data_dir': uded_dir,#'C:/dataset/UDED',  # mean_rgb
                 'yita': 0.5,
                 'mean':[104.007, 116.669, 122.679, 137.86] # [183.939,196.779,203.68,137.86] # [104.007, 116.669, 122.679, 137.86]
+            },
+            'SIN': {
+                'img_height': 512,#1536,  # 321
+                'img_width': 512,#2048,  # 481
+                'train_list': sin_train_pair,
+                'test_list': sin_test_pair,
+                'data_dir': sin_dir,
+                'yita': 0.5,
+                'mean':[104.007, 116.669, 122.679, 137.86] # [71.80301095, 71.79433409, 71.83170812, ???]
             },
             'BSDS': {'img_height': 480,  # 321
                      'img_width': 480,  # 481
@@ -344,7 +357,7 @@ class TestDataset(Dataset):
                     f"Test list not provided for dataset: {self.test_data}")
 
             list_name = os.path.join(self.data_root, self.test_list)
-            if self.test_data.upper() in ['BIPED', 'BRIND','UDED','ICEDA']:
+            if self.test_data.upper() in ['BIPED', 'BRIND','UDED','ICEDA','SIN']:
 
                 with open(list_name) as f:
                     files = json.load(f)
@@ -507,6 +520,18 @@ class BipedDataset(Dataset):
                 sample_indices.append(
                     (os.path.join(data_root, tmp_img),
                      os.path.join(data_root, tmp_gt),))
+        elif self.arg.train_data.lower() == 'sin':
+            print('SIN training data')
+            print(file_path)
+            with open(file_path) as f:
+                files = json.load(f)
+            for pair in files:
+                tmp_img = pair[0]
+                tmp_gt = pair[1]
+                sample_indices.append(
+                    (os.path.join(data_root, tmp_img),
+                     os.path.join(data_root, tmp_gt),))
+
         else:
             with open(file_path) as f:
                 files = json.load(f)

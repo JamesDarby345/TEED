@@ -106,7 +106,6 @@ def train_one_epoch(epoch, dataloader, model, criterions, optimizer, device,
 
 def validate_one_epoch(epoch, dataloader, model, device, output_dir, arg=None,test_resize=False):
     # XXX This is not really validation, but testing
-
     # Put model in eval mode
     model.eval()
 
@@ -128,7 +127,7 @@ def test(checkpoint_path, dataloader, model, device, output_dir, args,resize_inp
     if not os.path.isfile(checkpoint_path):
         raise FileNotFoundError(
             f"Checkpoint file not found: {checkpoint_path}")
-    print(f"Restoring weights from: {checkpoint_path}")
+    print(f"Test restoring weights from: {checkpoint_path}")
     model.load_state_dict(torch.load(checkpoint_path,
                                      map_location=device))
 
@@ -171,8 +170,8 @@ def testPich(checkpoint_path, dataloader, model, device, output_dir, args, resiz
     # a test model plus the interganged channels
     if not os.path.isfile(checkpoint_path):
         raise FileNotFoundError(
-            f"Checkpoint filte note found: {checkpoint_path}")
-    print(f"Restoring weights from: {checkpoint_path}")
+            f"Checkpoint file not found: {checkpoint_path}")
+    print(f"testPich restoring weights from: {checkpoint_path}")
     model.load_state_dict(torch.load(checkpoint_path,
                                      map_location=device))
 
@@ -209,10 +208,13 @@ def testPich(checkpoint_path, dataloader, model, device, output_dir, args, resiz
 def parse_args(is_testing=True):
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(description='TEED model')
+    #CHANGE only for testing/inference
+    checkpoint_epoch_num = 4
+    #CHANGE
     parser.add_argument('--choose_test_data',
                         type=int,
-                        default=15,     # UDED=15
-                        help='Choose a dataset for testing: 0 - 15')
+                        default=-1,     # UDED=15, SiN=16, CLASSIC=-1 (for testing in the /data folder)
+                        help='Choose a dataset for testing: 0 - 16')
 
     # ----------- test ----------
     TEST_DATA = DATASET_NAMES[parser.parse_args().choose_test_data] # max 8
@@ -220,7 +222,8 @@ def parse_args(is_testing=True):
 
     # Training settings
     # BIPED-B2=1, BIPED-B3=2, just for evaluation, using LDC trained with 2 or 3 blocks
-    TRAIN_DATA = DATASET_NAMES[0] # BIPED=0, BRIND=6, MDBD=10, BIPBRI=13
+    #CHANGE
+    TRAIN_DATA = DATASET_NAMES[16] # BIPED=0, BRIND=6, MDBD=10, BIPBRI=13, SiN=16
     print("Training dataset: ", TRAIN_DATA)
     train_inf = dataset_info(TRAIN_DATA, is_linux=IS_LINUX)
     train_dir = train_inf['data_dir']
@@ -275,7 +278,7 @@ def parse_args(is_testing=True):
                         help='use previous trained data')  # Just for test
     parser.add_argument('--checkpoint_data',
                         type=str,
-                        default='5/5_model.pth',# 37 for biped 60 MDBD
+                        default=f'{checkpoint_epoch_num}/{checkpoint_epoch_num}_model.pth',# 37 for biped 60 MDBD
                         help='Checkpoint path.')
     parser.add_argument('--test_img_width',
                         type=int,
@@ -350,6 +353,10 @@ def parse_args(is_testing=True):
     parser.add_argument('--mean_train',
                         default=train_inf['mean'],
                         type=float)  # [103.939,116.779,123.68,137.86] [104.00699, 116.66877, 122.67892]
+    #CHANGE for training
+    parser.add_argument('--model_type',
+                        default='BIPED',#'SIN',
+                        type=str)
 
     args = parser.parse_args()
     return args, train_inf
@@ -362,6 +369,7 @@ def main(args, train_inf):
     # torch.autograd.set_detect_anomaly(True)
     tb_writer = None
     training_dir = os.path.join(args.output_dir,args.train_data)
+    print("Training directory (model pth location): ", training_dir)
     os.makedirs(training_dir,exist_ok=True)
     checkpoint_path = os.path.join(args.output_dir, args.train_data,args.checkpoint_data)
     if args.tensorboard and not args.is_testing:
@@ -388,7 +396,7 @@ def main(args, train_inf):
     print(f"Pytorch version: {torch.__version__}")
     print(f"Device: {device}")
     # print(f'GPU: {torch.cuda.get_device_name()}')
-    print(f'Trainimage mean: {args.mean_train}')
+    print(f'Train image mean: {args.mean_train}')
     print(f'Test image mean: {args.mean_test}')
 
 
@@ -397,9 +405,11 @@ def main(args, train_inf):
     # model = nn.DataParallel(model)
     ini_epoch =0
     if not args.is_testing:
+        print("Resume from checkpoint? ", args.resume)
         if args.resume:
-            checkpoint_path2= os.path.join(args.output_dir, 'BIPED-54-B4',args.checkpoint_data)
-            ini_epoch=8
+            checkpoint_path2= os.path.join(args.output_dir, args.model_type ,args.checkpoint_data)
+            print("checkpoint_path2: ", checkpoint_path2)
+            ini_epoch=6
             model.load_state_dict(torch.load(checkpoint_path2,
                                          map_location=device))
 
@@ -438,7 +448,7 @@ def main(args, train_inf):
         # Count parameters:
         num_param = count_parameters(model)
         print('-------------------------------------------------------')
-        print('TEED parameters:')
+        print('Testing TEED parameters:')
         print(num_param)
         print('-------------------------------------------------------')
         return
@@ -453,7 +463,7 @@ def main(args, train_inf):
     # Count parameters:
     num_param = count_parameters(model)
     print('-------------------------------------------------------')
-    print('TEED parameters:')
+    print('TEED parameters a:')
     print(num_param)
     print('-------------------------------------------------------')
 
@@ -516,12 +526,14 @@ def main(args, train_inf):
 
     num_param = count_parameters(model)
     print('-------------------------------------------------------')
-    print('TEED parameters:')
+    print('TEED parameters b:')
     print(num_param)
     print('-------------------------------------------------------')
 
 if __name__ == '__main__':
     # os.system(" ".join(command))
-    is_testing =True # True to use TEED for testing
+    #CHANGE
+    is_testing = True # True to use TEED for testing
     args, train_info = parse_args(is_testing=is_testing)
+    print("main info:",args.output_dir, args.train_data, args.checkpoint_data)
     main(args, train_info)
